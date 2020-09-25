@@ -3,11 +3,15 @@ import requests
 import time
 
 gateway = 'AB'
+old_line = ""
+
 
 ser = serial.Serial('/dev/ttyACM0', 9600, timeout=2)
 print(ser.name)
 
-old_line = ""
+print('Set up radio module')
+set_power = '$P20'
+ser.write(set_power.encode('utf-8'))
 
 while True:
     line = ser.readline().decode('utf-8').strip()

@@ -14,7 +14,7 @@ while True:
 
     if line:
         if line[0] != '>':
-            print("{} {}".format(time.strftime("<-- %d/%m/%Y %H:%M:%S"), line))
+            print("{} {} ******************".format(time.strftime("<-- %d/%m/%Y %H:%M:%S"), line))
 
         else:
             print("{} {}".format(time.strftime("--- %d/%m/%Y %H:%M:%S"), line))

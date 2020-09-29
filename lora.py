@@ -32,6 +32,7 @@ def main(argv):
     print('ID = {}'.format(gateway))
 
     old_line = ""
+    old_data = ""
 
     while True:
         line = ser.readline().decode('utf-8').strip()
@@ -60,7 +61,10 @@ def main(argv):
                     print('')
 
             else:
-                print("{} {}".format(time.strftime("--- %d/%m/%Y %H:%M:%S"), line))
+                if "Sent" in line:
+                    pass
+                else:
+                    print("{} {}".format(time.strftime("--- %d/%m/%Y %H:%M:%S"), line))
 
         file = open('UKHASnet-decoder/latest.txt')
         latest = file.readlines()
@@ -72,7 +76,12 @@ def main(argv):
                 old_line = latest[0]
                 line_to_send = latest[0]
                 tx_lines = line_to_send.splitlines()
-                ser.write(tx_lines[0].encode('utf-8'))
+                tx_data = tx_lines[0][1:].split("[")
+                if tx_data[0] != old_data:
+                    ser.write(tx_lines[0].encode('utf-8'))
+                    old_data = tx_data[0]
+#                else:
+#                    print('Already sent this packet')
         except:
             print('Error')
 

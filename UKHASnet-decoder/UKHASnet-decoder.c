@@ -166,10 +166,12 @@ bool processByte(uint8_t byte) {
                         "http://www.ukhas.net/api/upload");
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
                        curlbuf);
-                res = curl_easy_perform(curl);
-                if(res != CURLE_OK)
-                    fprintf(stderr, "CURL request failed (%s)\n", curl_easy_strerror(res));
-                    //printf("CURL request failed, aborting...\n");
+                if (api) {
+	                res = curl_easy_perform(curl);
+ 	               if(res != CURLE_OK)
+        	            fprintf(stderr, "CURL request failed (%s)\n", curl_easy_strerror(res));
+                	    //printf("CURL request failed, aborting...\n");
+			}
 
                 FILE *fp;
                 fp = fopen("output.txt", "a+");

@@ -6,9 +6,10 @@ import sys, getopt
 
 def main(argv):
     global net_connect
+    global broadcast
 
     try:
-        opts, args = getopt.getopt(argv, "i:p:c")
+        opts, args = getopt.getopt(argv, "i:p:bc")
     except:
         print('Error')
 
@@ -16,6 +17,7 @@ def main(argv):
     print(ser.name)
     gateway = 'AB1'
     net_connect = 0
+    broadcast = 0
 
     for opt, arg in opts:
         if opt in ['-i']:
@@ -28,6 +30,9 @@ def main(argv):
 
         elif opt in ['-c']:
             net_connect = 1
+
+        elif opt in ['-b']:
+            broadcast = 1
 
     print('ID = {}'.format(gateway))
 
@@ -72,13 +77,14 @@ def main(argv):
         try:
             if "]" in latest[0] and latest[0][0] != "[" and latest[0] != old_line:
 #    if latest[0] != old_line:
-                print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), latest[0].rstrip()))
                 old_line = latest[0]
                 line_to_send = latest[0]
                 tx_lines = line_to_send.splitlines()
                 tx_data = tx_lines[0][1:].split("[")
                 if tx_data[0] != old_data:
-                    ser.write(tx_lines[0].encode('utf-8'))
+                    if broadcast == 0:
+                        print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), latest[0].rstrip()))
+                        ser.write(tx_lines[0].encode('utf-8'))
                     old_data = tx_data[0]
 #                else:
 #                    print('Already sent this packet')

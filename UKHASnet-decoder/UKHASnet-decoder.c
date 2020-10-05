@@ -157,22 +157,7 @@ bool processByte(uint8_t byte) {
             }
             printf("\n");
             fflush(stdout);
-            // Curl
-            if(curl && api)
-            {
-                snprintf(curlbuf, CURLBUF_SIZE, "origin=%s&data=%s", 
-                        gateway_id, buffer);
-                curl_easy_setopt(curl, CURLOPT_URL, 
-                        "http://www.ukhas.net/api/upload");
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
-                       curlbuf);
-                if (api) {
-	                res = curl_easy_perform(curl);
- 	               if(res != CURLE_OK)
-        	            fprintf(stderr, "CURL request failed (%s)\n", curl_easy_strerror(res));
-                	    //printf("CURL request failed, aborting...\n");
-			}
-
+            // Curl 
                 FILE *fp;
                 fp = fopen("output.txt", "a+");
                 char buff[100];
@@ -187,6 +172,19 @@ bool processByte(uint8_t byte) {
                 fprintf(fp1, "%s\n", buffer);
                 fclose(fp1);
 
+
+            if(curl && api)
+            {
+                snprintf(curlbuf, CURLBUF_SIZE, "origin=%s&data=%s", 
+                        gateway_id, buffer);
+                curl_easy_setopt(curl, CURLOPT_URL, 
+                        "http://www.ukhas.net/api/upload");
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
+                       curlbuf);
+	        res = curl_easy_perform(curl);
+ 	        if(res != CURLE_OK)
+        	     fprintf(stderr, "CURL request failed (%s)\n", curl_easy_strerror(res));
+                	    //printf("CURL request failed, aborting...\n");
 
             }
         } else if (verbose) {

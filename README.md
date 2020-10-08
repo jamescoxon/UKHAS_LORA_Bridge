@@ -12,3 +12,9 @@ Example: python3 lora.py -c -p 10 -i AB1
 * -c = this sets the script to upload received strings to the UKHAS.net website
 * -p = this allows you to adjust the power output of the radio, measured in dBm can be between 2 and 20
 * -i = this is the gateway idenfier.
+* -b = turns off broadcasting of packets via the LoRa radio, default is on.
+
+## Future
+
+* add packet repeating
+* add ability to chat over the network

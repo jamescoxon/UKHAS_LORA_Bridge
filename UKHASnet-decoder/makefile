@@ -7,7 +7,7 @@ SOURCES = UKHASnet-decoder.c
 all: $(TARGET)
 	
 $(TARGET): $(SOURCES)
-	$(CC) -std=gnu99 -o $(TARGET) $(SOURCES) -lcurl
+	$(CC) -std=gnu99 -o $(TARGET) $(SOURCES) -lcurl -lhiredis  $(pkg-config --cflags --libs glib-2.0)
 
 $(TARGET).exe: $(SOURCES)
 	i686-w64-mingw32-gcc -std=gnu99 -o $@ $^ \

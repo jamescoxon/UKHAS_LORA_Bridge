@@ -8,6 +8,15 @@
 #include <inttypes.h>
 #include <unistd.h> // getopt
 #include <curl/curl.h>
+//#include "hiredis/hiredis.h"
+//#include <hiredis.h>
+#include <hiredis/hiredis.h>
+
+// Redis Setup
+const char *hostname = "localhost";
+int port = 6379;
+redisContext *c;
+redisReply *reply;
 
 #ifdef _WIN32	// We could also use __MINGW32__
     #include <fcntl.h>
@@ -158,20 +167,22 @@ bool processByte(uint8_t byte) {
             printf("\n");
             fflush(stdout);
             // Curl 
-                FILE *fp;
-                fp = fopen("output.txt", "a+");
-                char buff[100];
-                time_t now = time(0);
-                strftime(buff, 100, "%Y-%m-%d %H:%M:%S", localtime(&now));
+//                FILE *fp;
+//                fp = fopen("output.txt", "a+");
+//                char buff[100];
+//                strftime(buff, 100, "%H:%M:%S", localtime(&now));
+//                fprintf(fp, "%s,%s,%s\n", buff, buffer, gateway_id);
+//                fclose(fp);
 
-                fprintf(fp, "%s,%s,%s\n", buff, buffer, gateway_id);
-                fclose(fp);
+//                FILE *fp1;
+//                fp1 = fopen("latest.txt", "w");
+//                fprintf(fp1, "%s\n", buffer);
+//                fclose(fp1);
+            time_t result = time(NULL);
 
-                FILE *fp1;
-                fp1 = fopen("latest.txt", "w");
-                fprintf(fp1, "%s\n", buffer);
-                fclose(fp1);
-
+            reply = redisCommand(c,"SET %ld %s EX 120", result , buffer);
+            //printf("SET: %s\n", reply->str);
+            freeReplyObject(reply);
 
             if(curl && api)
             {
@@ -280,6 +291,29 @@ int main (int argc, char**argv){
                 break;
         }
     }
+
+
+
+struct timeval timeout = { 1, 500000 }; // 1.5 seconds
+//c = redisConnectUnixWithTimeout(hostname, timeout);
+c = redisConnectWithTimeout(hostname, port, timeout);
+
+if (c == NULL || c->err) {
+    if (c) {
+        printf("Connection error: %s\n", c->errstr);
+        redisFree(c);
+    } else {
+        printf("Connection error: can't allocate redis context\n");
+    }
+    exit(1);
+}
+
+// PING server 
+reply = redisCommand(c,"PING");
+printf("PING: %s\n", reply->str);
+freeReplyObject(reply);
+
+
     if (!quiet) {
         printf("UKHAS decoder using rtl_fm\n");
         printf("Sample rate: %d Hz\n", sampleRate);
@@ -344,6 +378,9 @@ int main (int argc, char**argv){
     if (!quiet) {
         printf("%d samples in %d sec\n", samples, (int) (time(NULL)-start_time));
     }
+
+    /* Disconnects and frees the Redis context */
+    redisFree(c);
 
     // Clean up curl
     curl_easy_cleanup(curl);

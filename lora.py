@@ -3,8 +3,10 @@ import requests
 import time
 import sys, getopt
 
-def wrap(s, w):
-    return [s[i:i + w] for i in range(0, len(s), w)]
+import redis
+from redis import Redis
+
+redis_db = redis.Redis(host='localhost', charset="utf-8", decode_responses=True)
 
 def main(argv):
     global net_connect
@@ -17,7 +19,7 @@ def main(argv):
 
     ser = serial.Serial('/dev/ttyACM0', 9600, timeout=2)
     print(ser.name)
-    gateway = 'AB1'
+    gateway = 'CHANGEME'
     net_connect = 0
     broadcast = 0
 
@@ -73,55 +75,20 @@ def main(argv):
                 else:
                     print("{} {}".format(time.strftime("--- %d/%m/%Y %H:%M:%S"), line))
 
-        try:
-            chatfile = open('chat.txt')
-            chatlatest = chatfile.readlines()
-            chatfile.close()
-#            print(chatlatest)
-
-            position_char = 'a'
-            #if len(chatlatest > 32:
-            split_chat = wrap(chatlatest[0], 32)
-#            print(split_chat)
-
-            for parts in split_chat:
-                tx_string = '5{}:{}[{}]'.format(position_char, parts.rstrip(), gateway)
-                print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), tx_string.rstrip()))
-                ser.write(tx_string.encode('utf-8'))
-            #else:
-            #    tx_string = '5{}:{}[{}]'.format(position_char, parts, gateway)
-            #    print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), tx_string.rstrip()))
-            #    ser.write(tx_string.encode('utf-8'))
-
-            open("chat.txt", "w").close()
-
-        except:
-            pass
-
-        try:
-            file = open('UKHASnet-decoder/latest.txt')
-            latest = file.readlines()
-            file.close()
-            try:
-                if "]" in latest[0] and latest[0][0] != "[" and latest[0] != old_line:
-#    if latest[0] != old_line:
-                    old_line = latest[0]
-                    line_to_send = latest[0]
-                    tx_lines = line_to_send.splitlines()
-                    tx_data = tx_lines[0][1:].split("[")
-                    if tx_data[0] != old_data:
-                        if broadcast == 0:
-                            add_ending = '{},{}]'.format(tx_lines[0][:-1], gateway)
-                            print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
-                            ser.write(add_ending.encode('utf-8'))
-                        old_data = tx_data[0]
-#                else:
-#                    print('Already sent this packet')
-            except:
-                print('Error')
-        except:
-            pass
-
+        jobs = redis_db.keys('*')
+        if len(jobs) > 0:
+            jobs.sort()
+            latest = redis_db.get(jobs[0])
+            redis_db.delete(jobs[0])
+            if "]" in latest and latest[0] != "[" and latest != old_line:
+                old_line = latest
+                tx_data = latest[1:].split("[")
+                if tx_data[0] != old_data:
+                    if broadcast == 0:
+                        add_ending = '{},{}]'.format(latest[:-1], gateway)
+                        print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
+                        ser.write(add_ending.encode('utf-8'))
+                    old_data = tx_data[0]
 
 if __name__ == "__main__":
     main(sys.argv[1:])

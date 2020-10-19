@@ -14,10 +14,11 @@ Example: python3 lora.py -c -p 10 -i AB1
 * -i = this is the gateway idenfier.
 * -b = turns off broadcasting of packets via the LoRa radio, default is on.
 
+## Chat
+If you have the lora.py script running (either as a service or in a seperate screen you can then use `chat.py` to send custom messages. 
 ## Future
 
 * add packet repeating
-* add ability to chat over the network
 
 ## Installation on Ubuntu/Debian/Raspbian/DietPi
 
@@ -37,3 +38,15 @@ cd ..
 pip3 install serial requests redis
 python3 lora.py -c -p 10 -i AB2
 ```
+
+## Installation as a systemd service
+
+```
+cp lora.service /etc/systemd/system/
+systemctl enable lora.service
+systemctl start lora.service
+```
+
+To check it it is working use the command:
+`systemctl status lora.service`
+

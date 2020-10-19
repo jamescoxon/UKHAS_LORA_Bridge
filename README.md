@@ -18,3 +18,20 @@ Example: python3 lora.py -c -p 10 -i AB1
 
 * add packet repeating
 * add ability to chat over the network
+
+```
+apt install git python3-pip make gcc g++ libcurl4-openssl-dev screen redis
+git clone https://wvsensornet.xyz/git/jamescoxon/UKHAS_LORA_Bridge,get
+cd UKHAS_LORA_Bridge
+git submodule init
+git submodule update
+cd UKHASnet-decoder/hiredis/
+make
+make install 
+ldconfig
+cd ..
+make
+cd ..
+pip3 install serial requests redis
+python3 lora.py -c -p 10 -i AB2
+```

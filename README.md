@@ -19,6 +19,8 @@ Example: python3 lora.py -c -p 10 -i AB1
 * add packet repeating
 * add ability to chat over the network
 
+## Installation on Ubuntu/Debian/Raspbian/DietPi
+
 ```
 apt install git python3-pip make gcc g++ libcurl4-openssl-dev screen redis
 git clone https://wvsensornet.xyz/git/jamescoxon/UKHAS_LORA_Bridge,get

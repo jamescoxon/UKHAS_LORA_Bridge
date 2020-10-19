@@ -40,11 +40,18 @@ def main(argv):
 
     print('ID = {}'.format(gateway))
 
+    if gateway == 'CHANGEME':
+        print('Please change default gateway ID name with the -i command')
+        sys.exit()
+
     old_line = ""
     old_data = ""
 
     while True:
-        line = ser.readline().decode('utf-8').strip()
+        try:
+            line = ser.readline().decode('utf-8').strip()
+        except:
+            line = None
 
         if line:
             if line[0] != '>':
@@ -62,8 +69,11 @@ def main(argv):
                     data = line_split[0]
 #                print("{}: {}".format(time.strftime("%d/%m/%Y %H:%M:%S"), line))
                     if net_connect == 1:
-                        r = requests.post('http://www.ukhas.net/api/upload', json = {'origin': gateway, 'data' : data, 'rssi' : rx_rssi})
-                        print("Uploaded")
+                        try:
+                            r = requests.post('http://www.ukhas.net/api/upload', json = {'origin': gateway, 'data' : data, 'rssi' : rx_rssi})
+                            print("Uploaded")
+                        except:
+                            print('Error no internet connection')
                     else:
                         print('Not Uploaded')
                 else:

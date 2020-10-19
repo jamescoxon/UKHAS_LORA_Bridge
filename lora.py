@@ -50,6 +50,8 @@ def main(argv):
     while True:
         try:
             line = ser.readline().decode('utf-8').strip()
+        except KeyboardInterrupt:
+            sys.exit()
         except:
             line = None
 

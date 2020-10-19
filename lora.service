@@ -1,0 +1,14 @@
+[Unit]
+Description=LoRaservice
+After=network.target
+StartLimitIntervalSec=0[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+
+[Service]
+ExecStart=/usr/bin/python3 /root/UKHAS_LORA_Bridge/lora.py -i AB2 -p 10
+
+[Install]
+WantedBy=multi-user.target

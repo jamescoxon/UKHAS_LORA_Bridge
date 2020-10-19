@@ -14,6 +14,8 @@ tx_string = '4a:{}[{}]'.format(text.replace(' ', '_'), id)
 
 print(tx_string)
 
-redis_db.set((int(time.time()) - 1000), tx_string)
-
-print('Pending')
+if len(tx_string) < 64:
+    redis_db.set((int(time.time()) - 1000), tx_string)
+    print('Loaded into the broadcast queue')
+else:
+    print('Error string is too long')

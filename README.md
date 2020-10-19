@@ -4,10 +4,8 @@ This allows a bridge between a local 869.5Mhz UKHASnet network and a LoRa UKHASn
 
 There are 2 components, a python script that manages the LoRa bridge and a modified UKHASnet SDR decoder.
 
-## Installation
-
 ## Running
-Example: python3 lora.py -c -p 10 -i AB1
+Example: `python3 lora.py -c -p 10 -i AB1`
 
 * -c = this sets the script to upload received strings to the UKHAS.net website
 * -p = this allows you to adjust the power output of the radio, measured in dBm can be between 2 and 20
@@ -15,7 +13,7 @@ Example: python3 lora.py -c -p 10 -i AB1
 * -b = turns off broadcasting of packets via the LoRa radio, default is on.
 
 ## Chat
-If you have the lora.py script running (either as a service or in a seperate screen you can then use `chat.py` to send custom messages. 
+If you have the lora.py script running (either as a service or in a seperate screen) you can then use `chat.py` to send custom messages. The script creates a UKHASnet packet and puts it in the redis database for the main lora.py to send. The script prioritises the packet over other packets.
 ## Future
 
 * add packet repeating
@@ -24,7 +22,7 @@ If you have the lora.py script running (either as a service or in a seperate scr
 
 ```
 apt install git python3-pip make gcc g++ libcurl4-openssl-dev screen redis
-git clone https://wvsensornet.xyz/git/jamescoxon/UKHAS_LORA_Bridge,get
+git clone https://wvsensornet.xyz/git/jamescoxon/UKHAS_LORA_Bridge.git
 cd UKHAS_LORA_Bridge
 git submodule init
 git submodule update

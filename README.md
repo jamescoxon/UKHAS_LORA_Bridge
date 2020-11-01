@@ -21,19 +21,22 @@ If you have the lora.py script running (either as a service or in a seperate scr
 ## Installation on Ubuntu/Debian/Raspbian/DietPi
 
 ```
-apt install git python3-pip make gcc g++ libcurl4-openssl-dev screen redis
+sudo apt install git python3-pip make gcc g++ libcurl4-openssl-dev screen redis git python3-setuptools
 git clone https://wvsensornet.xyz/git/jamescoxon/UKHAS_LORA_Bridge.git
 cd UKHAS_LORA_Bridge
 git submodule init
 git submodule update
 cd UKHASnet-decoder/hiredis/
 make
-make install 
+sudo make install 
 ldconfig
 cd ..
 make
 cd ..
-pip3 install serial requests redis
+pip3 install pyserial requests redis
+```
+On dietpi you will need to reboot.
+```
 python3 lora.py -c -p 10 -i AB2
 ```
 

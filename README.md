@@ -13,11 +13,15 @@ Example: `python3 lora.py -c -p 10 -i AB1 -r`
 * -b = turns off broadcasting of packets via the LoRa radio, default is on.
 * -r = turns on repeating rx'd packets, default is off
 
-## Chat
+## Chat (chat.py)
 If you have the lora.py script running (either as a service or in a seperate screen) you can then use `chat.py` to send custom messages. The script creates a UKHASnet packet and puts it in the redis database for the main lora.py to send. The script prioritises the packet over other packets.
+
+## Beacon (beacon.py)
+This is a simple script that broadcasts every 60 seconds a short packet. Currently it uses the CPU temperature on the Pi but could be used for anything.
+
 ## Future
 
-* add packet repeating
+* make the system more robust
 
 ## Installation on Ubuntu/Debian/Raspbian/DietPi
 

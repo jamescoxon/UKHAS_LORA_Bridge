@@ -11,6 +11,7 @@ redis_db = redis.Redis(host='localhost', charset="utf-8", decode_responses=True)
 def main(argv):
     global net_connect
     global broadcast
+    global repeater
 
     try:
         opts, args = getopt.getopt(argv, "i:p:bcr")
@@ -22,7 +23,7 @@ def main(argv):
     gateway = 'CHANGEME'
     net_connect = 0
     broadcast = 0
-
+    repeater = 0
     for opt, arg in opts:
         if opt in ['-i']:
             gateway = arg

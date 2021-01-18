@@ -10,9 +10,9 @@ redis_db = redis.Redis(host='localhost', charset="utf-8", decode_responses=True)
 
 def main(argv):
 
-    ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=2)
+    ser = serial.Serial('/dev/serial0', 115200, timeout=2)
     print(ser.name)
-    gateway = 'AA'
+    gateway = 'AB1'
 
     print('ID = {}'.format(gateway))
 
@@ -32,6 +32,7 @@ def main(argv):
             line = None
 
         if line:
+#            print(line)
             if "]" in line and line[0] != "[" and line != old_line and "|" in line:
                 print("{} {} ***--> ".format(time.strftime("<-- %d/%m/%Y %H:%M:%S"), line), end = '')
 

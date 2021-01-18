@@ -10,7 +10,7 @@ redis_db = redis.Redis(host='localhost', charset="utf-8", decode_responses=True)
 id = input('ID: ')
 text = input('Text: ')
 
-tx_string = '4a:{}[{}]'.format(text.replace(' ', '_'), id)
+tx_string = '6a:{}[{}]'.format(text.replace(' ', '_'), id)
 
 print(tx_string)
 

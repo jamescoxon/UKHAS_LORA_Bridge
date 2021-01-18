@@ -13,7 +13,7 @@ def main(argv):
     global broadcast
 
     try:
-        opts, args = getopt.getopt(argv, "i:p:bc")
+        opts, args = getopt.getopt(argv, "i:p:bcr")
     except:
         print('Error')
 
@@ -34,6 +34,9 @@ def main(argv):
 
         elif opt in ['-c']:
             net_connect = 1
+
+        elif opt in ['-r']:
+            repeater = 1
 
         elif opt in ['-b']:
             broadcast = 1
@@ -63,6 +66,7 @@ def main(argv):
                 if "]" in line and line[0] != "[" and line != old_line:
 
                     line_split = line.split("|")
+
                     if len(line_split) > 1:
                         rx_rssi = line_split[1]
                     else:
@@ -78,6 +82,15 @@ def main(argv):
                             print('Error no internet connection')
                     else:
                         print('Not Uploaded')
+
+#                    Repeater Code
+                    if repeater == 1:
+#                       reduce hoops
+                        hoops = int(line_split[0][0])
+                        add_ending = '{}{},{}]'.format(hoops -1, line_split[0][1:-1], gateway)
+                        print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
+                        ser.write(add_ending.encode('utf-8'))
+
                 else:
                     print('')
 

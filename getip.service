@@ -1,0 +1,15 @@
+[Unit]
+Description=displayipservice
+After=network.target
+StartLimitIntervalSec=0[Service]
+Type=simple
+Restart=on-failure
+RestartSec=10
+KillMode=process
+User=root
+
+[Service]
+ExecStart=/usr/bin/python3 /root/ipaddr.py
+
+[Install]
+WantedBy=multi-user.target

@@ -32,12 +32,11 @@ stdscr.nodelay(True)
 
 max_y, max_x = stdscr.getmaxyx()
 stdscr.border(0)
-stdscr.addstr(4, 5, 'WV Chat System!', curses.A_BOLD)
-stdscr.hline(5, 1, ord('*'), max_x - 2)
-stdscr.addstr(6, 5, 'Press Q (shift q) to close this screen', curses.A_NORMAL)
-stdscr.addstr(10, 5, 'TX LOG: ', curses.A_NORMAL)
-stdscr.addstr(24, 5, 'RX LOG: ', curses.A_NORMAL)
-stdscr.addstr(7, 5, 'Send: ', curses.A_NORMAL)
+stdscr.addstr(2, 5, 'WV Chat System!', curses.A_BOLD)
+stdscr.hline(3, 1, ord('*'), max_x - 2)
+stdscr.addstr(4, 5, 'Press Q (shift q) to close this screen', curses.A_NORMAL)
+stdscr.addstr(8, 5, 'LOG: ', curses.A_NORMAL)
+stdscr.addstr(5, 5, 'Send: ', curses.A_NORMAL)
 
 input_array = ''
 tx_x = 11
@@ -57,15 +56,18 @@ while True:
             if tx_x > 16:
                 tx_x = 11
 
-            stdscr.move(7, 11)
+            stdscr.move(5, 11)
             stdscr.clrtoeol()
             stdscr.refresh()
 
         elif ch == 127:
+#	delete character
             current_y, current_x = stdscr.getyx()
             if (current_x - 1) >= 11:
-                stdscr.delch(7, current_x - 1)
+                stdscr.delch(5, current_x - 1)
+                stdscr.border(0)
                 stdscr.refresh()
+                input_array = input_array[:-1]
 
         else:
             if ch > 96 and ch < 123:

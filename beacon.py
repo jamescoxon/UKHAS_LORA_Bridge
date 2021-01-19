@@ -8,7 +8,7 @@ from redis import Redis
 
 redis_db = redis.Redis(host='localhost', charset="utf-8", decode_responses=True)
 
-id = 'AB'
+id = input('ID: ')
 input = input('Text: ')
 
 letter = 'a'

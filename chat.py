@@ -28,6 +28,7 @@ id = input('ID: ')
 
 stdscr = curses.initscr()
 curses.noecho()
+stdscr.nodelay(True)
 
 max_y, max_x = stdscr.getmaxyx()
 stdscr.border(0)
@@ -64,14 +65,20 @@ while True:
             current_y, current_x = stdscr.getyx()
             if (current_x - 1) >= 11:
                 stdscr.delch(7, current_x - 1)
-#            stdscr.addch(7, current_x - 1, ord(' '))
-#            stdscr.chgat(7, current_x - 1, ord(' '))
                 stdscr.refresh()
 
         else:
             if ch > 96 and ch < 123:
                 stdscr.addch(ch)
                 input_array = '{}{}'.format(input_array, chr(ch))
+            if ch >= 48 and ch <= 57:
+                stdscr.addch(ch)
+                input_array = '{}{}'.format(input_array, chr(ch))
+            if ch == 32:
+                stdscr.addch(ch)
+                input_array = '{}{}'.format(input_array, chr(ch))
+
+        rx_log = redis_db.get('rx_log')
 
     except KeyboardInterrupt:
         print('\nExiting')

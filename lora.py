@@ -86,11 +86,14 @@ def main(argv):
 
 #                    Repeater Code
                     if repeater == 1:
-#                       reduce hoops
-                        hoops = int(line_split[0][0])
-                        add_ending = '{}{},{}]'.format(hoops -1, line_split[0][1:-1], gateway)
-                        print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
-                        ser.write(add_ending.encode('utf-8'))
+                        if gateway in line_split[0]:
+                            print('Not repeating again')
+                        else:
+    #                       reduce hoops
+                            hoops = int(line_split[0][0])
+                            add_ending = '{}{},{}]'.format(hoops -1, line_split[0][1:-1], gateway)
+                            print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
+                            ser.write(add_ending.encode('utf-8'))
 
                 else:
                     print('')

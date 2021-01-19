@@ -26,4 +26,4 @@ while True:
     if letter == '{':
         letter = 'b'
 
-    time.sleep(60)
+    time.sleep(300)

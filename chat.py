@@ -80,7 +80,20 @@ while True:
                 stdscr.addch(ch)
                 input_array = '{}{}'.format(input_array, chr(ch))
 
-        rx_log = redis_db.get('rx_log')
+        jobs = redis_db.keys('c*')
+        if len(jobs) > 0:
+            jobs.sort()
+            latest = redis_db.get(jobs[0])
+            redis_db.delete(jobs[0])
+            stdscr.addstr(tx_x, 5, latest, curses.A_NORMAL)
+            tx_x = tx_x + 1
+            if tx_x > 16:
+                tx_x = 11
+            stdscr.move(5, 11)
+            stdscr.clrtoeol()
+            stdscr.refresh()
+
+#        rx_log = redis_db.get('rx_log')
 
     except KeyboardInterrupt:
         print('\nExiting')

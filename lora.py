@@ -75,6 +75,8 @@ def main(argv):
 
                     data = line_split[0]
 #                print("{}: {}".format(time.strftime("%d/%m/%Y %H:%M:%S"), line))
+                    if ':' in data:
+                        redis_db.set('c{}'.format((int(time.time()) - 1000)), data)
                     if net_connect == 1:
                         try:
                             r = requests.post('http://www.ukhas.net/api/upload', json = {'origin': gateway, 'data' : data, 'rssi' : rx_rssi})
@@ -107,17 +109,18 @@ def main(argv):
         jobs = redis_db.keys('*')
         if len(jobs) > 0:
             jobs.sort()
-            latest = redis_db.get(jobs[0])
-            redis_db.delete(jobs[0])
-            if "]" in latest and latest[0] != "[" and latest != old_line:
-                old_line = latest
-                tx_data = latest[1:].split("[")
-                if tx_data[0] != old_data:
-                    if broadcast == 0:
-                        add_ending = '{},{}]'.format(latest[:-1], gateway)
-                        print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
-                        ser.write(add_ending.encode('utf-8'))
-                    old_data = tx_data[0]
+            if 'c' not in jobs[0]: 
+                latest = redis_db.get(jobs[0])
+                redis_db.delete(jobs[0])
+                if "]" in latest and latest[0] != "[" and latest != old_line:
+                    old_line = latest
+                    tx_data = latest[1:].split("[")
+                    if tx_data[0] != old_data:
+                        if broadcast == 0:
+                            add_ending = '{},{}]'.format(latest[:-1], gateway)
+                            print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
+                            ser.write(add_ending.encode('utf-8'))
+                        old_data = tx_data[0]
 
 if __name__ == "__main__":
     main(sys.argv[1:])

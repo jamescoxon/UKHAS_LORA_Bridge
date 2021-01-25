@@ -35,11 +35,14 @@ stdscr.border(0)
 stdscr.addstr(2, 5, 'WV Chat System!', curses.A_BOLD)
 stdscr.hline(3, 1, ord('*'), max_x - 2)
 stdscr.addstr(4, 5, 'Press Q (shift q) to close this screen', curses.A_NORMAL)
-stdscr.addstr(8, 5, 'LOG: ', curses.A_NORMAL)
+stdscr.addstr(8, 5, 'Rolling Log: ', curses.A_NORMAL)
 stdscr.addstr(5, 5, 'Send: ', curses.A_NORMAL)
 
 input_array = ''
+letter = 'a'
 tx_x = 9
+last_tx = ''
+
 while True:
     try:
         ch = stdscr.getch()
@@ -48,17 +51,28 @@ while True:
             sys.exit()
 
         elif ch == curses.KEY_ENTER or ch == 10:
-            tx_string = '6a:{}[{}]'.format(input_array.replace(' ', '_'), id)
+            tx_string = '6{}:{}[{}]'.format(letter, input_array.replace(' ', '_'), id)
+            last_tx = tx_string[1:-1]
             send_text(tx_string)
+            stdscr.move(tx_x, 5)
+            stdscr.clrtoeol()
             stdscr.addstr(tx_x, 5, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), tx_string), curses.A_NORMAL)
             input_array = ''
             tx_x = tx_x + 1
             if tx_x > 16:
-                tx_x = 11
+                tx_x = 9
 
+            stdscr.move(tx_x, 5)
+            stdscr.clrtoeol()
+#Return to input
             stdscr.move(5, 11)
             stdscr.clrtoeol()
             stdscr.refresh()
+
+            letter = chr(ord(letter) + 1)
+            if letter == '{':
+                letter = 'b'
+
 
         elif ch == 127:
 #	delete character
@@ -85,12 +99,23 @@ while True:
             jobs.sort()
             latest = redis_db.get(jobs[0])
             redis_db.delete(jobs[0])
-            stdscr.clrtoeol()
-            stdscr.addstr(tx_x, 5, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), latest), curses.A_NORMAL)
-            tx_x = tx_x + 1
-            if tx_x > 16:
-                tx_x = 11
+            if last_tx not in latest:
+                stdscr.move(tx_x, 5)
+                stdscr.clrtoeol()
+                stdscr.addstr(tx_x, 5, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), latest), curses.A_NORMAL)
+                tx_x = tx_x + 1
+                if tx_x > 16:
+                    tx_x = 9
+                stdscr.move(tx_x, 5)
+                stdscr.clrtoeol()
+            else:
+                ack_id = latest.split(',')[-1][:-1]
+                stdscr.move(tx_x - 1, 5)
+                stdscr.addstr(tx_x - 1, max_x - 20, 'ACK: {}'.format(ack_id), curses.A_NORMAL)
+
+#Return to input
             stdscr.move(5, 11)
+            stdscr.clrtoeol()
             stdscr.refresh()
 
 #        rx_log = redis_db.get('rx_log')

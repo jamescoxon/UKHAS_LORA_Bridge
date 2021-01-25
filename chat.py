@@ -109,9 +109,10 @@ while True:
                 stdscr.move(tx_x, 5)
                 stdscr.clrtoeol()
             else:
-                ack_id = latest.split(',')[-1][:-1]
-                stdscr.move(tx_x - 1, 5)
-                stdscr.addstr(tx_x - 1, max_x - 20, 'ACK: {}'.format(ack_id), curses.A_NORMAL)
+                if last_tx != '':
+                    ack_id = latest.split(',')[-1][:-1]
+                    stdscr.move(tx_x - 1, 5)
+                    stdscr.addstr(tx_x - 1, max_x - 20, 'ACK: {}'.format(ack_id), curses.A_NORMAL)
 
 #Return to input
             stdscr.move(5, 11)

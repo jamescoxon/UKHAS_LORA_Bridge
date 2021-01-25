@@ -76,7 +76,7 @@ def main(argv):
                     data = line_split[0]
 #                print("{}: {}".format(time.strftime("%d/%m/%Y %H:%M:%S"), line))
                     if ':' in data:
-                        redis_db.set('c{}'.format((int(time.time()) - 1000)), data)
+                        redis_db.set('c{}'.format((int(time.time()))), data)
                     if net_connect == 1:
                         try:
                             r = requests.post('http://www.ukhas.net/api/upload', json = {'origin': gateway, 'data' : data, 'rssi' : rx_rssi})

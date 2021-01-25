@@ -24,7 +24,7 @@ def send_text(tx_string):
     else:
         print('Error string is too long')
 
-id = input('ID: ')
+id = input('ID: ').upper()
 
 stdscr = curses.initscr()
 curses.noecho()
@@ -39,7 +39,7 @@ stdscr.addstr(8, 5, 'LOG: ', curses.A_NORMAL)
 stdscr.addstr(5, 5, 'Send: ', curses.A_NORMAL)
 
 input_array = ''
-tx_x = 11
+tx_x = 9
 while True:
     try:
         ch = stdscr.getch()
@@ -50,7 +50,7 @@ while True:
         elif ch == curses.KEY_ENTER or ch == 10:
             tx_string = '6a:{}[{}]'.format(input_array.replace(' ', '_'), id)
             send_text(tx_string)
-            stdscr.addstr(tx_x, 5, tx_string, curses.A_NORMAL)
+            stdscr.addstr(tx_x, 5, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), tx_string), curses.A_NORMAL)
             input_array = ''
             tx_x = tx_x + 1
             if tx_x > 16:
@@ -85,12 +85,12 @@ while True:
             jobs.sort()
             latest = redis_db.get(jobs[0])
             redis_db.delete(jobs[0])
-            stdscr.addstr(tx_x, 5, latest, curses.A_NORMAL)
+            stdscr.clrtoeol()
+            stdscr.addstr(tx_x, 5, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), latest), curses.A_NORMAL)
             tx_x = tx_x + 1
             if tx_x > 16:
                 tx_x = 11
             stdscr.move(5, 11)
-            stdscr.clrtoeol()
             stdscr.refresh()
 
 #        rx_log = redis_db.get('rx_log')

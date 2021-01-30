@@ -24,6 +24,7 @@ def send_text(tx_string):
     else:
         print('Error string is too long')
 
+y_bound = 3
 id = input('ID: ').upper()
 
 stdscr = curses.initscr()
@@ -32,11 +33,11 @@ stdscr.nodelay(True)
 
 max_y, max_x = stdscr.getmaxyx()
 stdscr.border(0)
-stdscr.addstr(2, 5, 'WV Chat System!', curses.A_BOLD)
+stdscr.addstr(2, y_bound, 'WV Chat System!', curses.A_BOLD)
 stdscr.hline(3, 1, ord('*'), max_x - 2)
-stdscr.addstr(4, 5, 'Press Q (shift q) to close this screen', curses.A_NORMAL)
-stdscr.addstr(8, 5, 'Rolling Log: ', curses.A_NORMAL)
-stdscr.addstr(5, 5, 'Send: ', curses.A_NORMAL)
+stdscr.addstr(4, y_bound, 'Press Q (shift q) to close this screen', curses.A_NORMAL)
+stdscr.addstr(8, y_bound, 'Rolling Log: ', curses.A_NORMAL)
+stdscr.addstr(5, y_bound, 'Send: ', curses.A_NORMAL)
 
 input_array = ''
 letter = 'a'
@@ -54,18 +55,18 @@ while True:
             tx_string = '6{}:{}[{}]'.format(letter, input_array.replace(' ', '_'), id)
             last_tx = tx_string[1:-1]
             send_text(tx_string)
-            stdscr.move(tx_x, 5)
+            stdscr.move(tx_x, y_bound)
             stdscr.clrtoeol()
-            stdscr.addstr(tx_x, 5, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), tx_string), curses.A_NORMAL)
+            stdscr.addstr(tx_x, y_bound, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), tx_string), curses.A_NORMAL)
             input_array = ''
             tx_x = tx_x + 1
             if tx_x > 16:
                 tx_x = 9
 
-            stdscr.move(tx_x, 5)
+            stdscr.move(tx_x, y_bound)
             stdscr.clrtoeol()
 #Return to input
-            stdscr.move(5, 11)
+            stdscr.move(5, 9)
             stdscr.clrtoeol()
             stdscr.refresh()
 
@@ -77,7 +78,7 @@ while True:
         elif ch == 127:
 #	delete character
             current_y, current_x = stdscr.getyx()
-            if (current_x - 1) >= 11:
+            if (current_x - 1) >= 9:
                 stdscr.delch(5, current_x - 1)
                 stdscr.border(0)
                 stdscr.refresh()
@@ -100,22 +101,22 @@ while True:
             latest = redis_db.get(jobs[0])
             redis_db.delete(jobs[0])
             if last_tx not in latest:
-                stdscr.move(tx_x, 5)
+                stdscr.move(tx_x, y_bound)
                 stdscr.clrtoeol()
-                stdscr.addstr(tx_x, 5, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), latest), curses.A_NORMAL)
+                stdscr.addstr(tx_x, y_bound, '{} {}'.format(time.strftime("%d/%m/%Y %H:%M:%S"), latest), curses.A_NORMAL)
                 tx_x = tx_x + 1
                 if tx_x > 16:
                     tx_x = 9
-                stdscr.move(tx_x, 5)
+                stdscr.move(tx_x, y_bound)
                 stdscr.clrtoeol()
             else:
                 if last_tx != '':
                     ack_id = latest.split(',')[-1][:-1]
-                    stdscr.move(tx_x - 1, 5)
+                    stdscr.move(tx_x - 1, y_bound)
                     stdscr.addstr(tx_x - 1, max_x - 20, 'ACK: {}'.format(ack_id), curses.A_NORMAL)
 
 #Return to input
-            stdscr.move(5, 11)
+            stdscr.move(5, 9)
             stdscr.clrtoeol()
             stdscr.refresh()
 

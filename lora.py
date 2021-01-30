@@ -14,7 +14,7 @@ def main(argv):
     global repeater
 
     try:
-        opts, args = getopt.getopt(argv, "i:p:bcr")
+        opts, args = getopt.getopt(argv, "i:p:m:bcr")
     except:
         print('Error')
 
@@ -30,8 +30,15 @@ def main(argv):
         elif opt in ['-p']:
             power = arg
             print('Set up radio module')
-            set_power = '$P{}'.format(power)
+            set_power = '$P{}\n'.format(power)
             ser.write(set_power.encode('utf-8'))
+
+        elif opt in ['-m']:
+            mode = arg
+            set_mode = '$M{}\n'.format(mode)
+            ser.write('\n'.encode('utf-8'))
+            time.sleep(2)
+            ser.write(set_mode.encode('utf-8'))
 
         elif opt in ['-c']:
             net_connect = 1

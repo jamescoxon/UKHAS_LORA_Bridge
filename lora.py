@@ -2,6 +2,7 @@ import serial
 import requests
 import time
 import sys, getopt
+import re
 
 import redis
 from redis import Redis
@@ -12,9 +13,10 @@ def main(argv):
     global net_connect
     global broadcast
     global repeater
+    global geolocate
 
     try:
-        opts, args = getopt.getopt(argv, "i:p:m:bcr")
+        opts, args = getopt.getopt(argv, "i:p:m:bcrg")
     except:
         print('Error')
 
@@ -24,6 +26,7 @@ def main(argv):
     net_connect = 0
     broadcast = 0
     repeater = 0
+    geolocate = 0
     for opt, arg in opts:
         if opt in ['-i']:
             gateway = arg
@@ -48,6 +51,9 @@ def main(argv):
 
         elif opt in ['-b']:
             broadcast = 1
+
+        elif opt in ['-g']:
+            geolocate = 1
 
     print('ID = {}'.format(gateway))
 
@@ -93,6 +99,28 @@ def main(argv):
                     else:
                         print('Not Uploaded')
 
+
+#                    Geolocate
+                    if geolocate == 1:
+                        if 'L' in  line_split[0] and gateway not in line_split[0]:
+                            packet_split = line_split[0].split('[')
+                            packet_source = packet_split[1].split(',')[0]
+                            if packet_source[-1] == ']':
+                                #print('Stripping end')
+                                packet_source = packet_source.rstrip(']')
+                            packet_parts = []
+                            packet_parts = re.findall('[A-Z][^A-Z]*', line_split[0])
+                            for parts in packet_parts:
+                                if parts[0] == 'L':
+                                    location_split = parts[1:].split(',')
+                                    location_lat = location_split[0]
+                                    location_lon = location_split[1]
+
+                                    #print('Saving to Geolocate DB {}\n {}'.format(packet_source, parts[1:]))
+                                    #print('{} {} {} {}'.format(packet_source, location_lon, location_lat, int(time.time())))
+                                    redis_db.geoadd('geo-{}'.format(packet_source), location_lon, location_lat, str(int(time.time())))
+                                    redis_db.geoadd('geo-current', location_lon, location_lat, packet_source )
+
 #                    Repeater Code
                     if repeater == 1:
                         if gateway in line_split[0]:
@@ -116,7 +144,7 @@ def main(argv):
         jobs = redis_db.keys('*')
         if len(jobs) > 0:
             jobs.sort()
-            if 'c' not in jobs[0]: 
+            if 'c' not in jobs[0] and 'geo' not in jobs[0]: 
                 latest = redis_db.get(jobs[0])
                 redis_db.delete(jobs[0])
                 if "]" in latest and latest[0] != "[" and latest != old_line:

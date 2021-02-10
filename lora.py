@@ -3,6 +3,7 @@ import requests
 import time
 import sys, getopt
 import re
+import random
 
 import redis
 from redis import Redis
@@ -130,6 +131,7 @@ def main(argv):
     #                       reduce hoops
                             hoops = int(data[0])
                             add_ending = '{}{},{}]'.format(hoops -1, data[1:-1], gateway)
+                            time.sleep(random.random() * 5.0)
                             print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
                             ser.write(add_ending.encode('utf-8'))
 

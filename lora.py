@@ -128,12 +128,13 @@ def main(argv):
                         if gateway in data:
                             print('Not repeating again')
                         else:
-    #                       reduce hoops
-                            hoops = int(data[0])
-                            add_ending = '{}{},{}]'.format(hoops -1, data[1:-1], gateway)
-                            time.sleep(random.random() * 5.0)
-                            print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
-                            ser.write(add_ending.encode('utf-8'))
+    #                       reduce hops
+                            hops = int(data[0])
+                            if hoops > 0:
+                                add_ending = '{}{},{}]'.format(hops -1, data[1:-1], gateway)
+                                time.sleep(random.random() * 5.0)
+                                print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
+                                ser.write(add_ending.encode('utf-8'))
 
                 else:
                     print('')

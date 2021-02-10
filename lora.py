@@ -67,15 +67,15 @@ def main(argv):
     while True:
         try:
             line = ser.readline().decode('utf-8').strip()
+#            ser.reset_input_buffer()
         except KeyboardInterrupt:
             sys.exit()
         except:
             line = None
 
         if line:
-            if line[0] != '>':
-                print("{} {} ***--> ".format(time.strftime("<-- %d/%m/%Y %H:%M:%S"), line), end = '')
 
+            if line[0] != '>':
 
                 if "]" in line and line[0] != "[" and line != old_line:
 
@@ -86,8 +86,9 @@ def main(argv):
                     else:
                         rx_rssi = "0"
 
-                    data = line_split[0]
-#                print("{}: {}".format(time.strftime("%d/%m/%Y %H:%M:%S"), line))
+                    data = line_split[0].split(']')[0] + ']'
+                    print("{} {} ***--> ".format(time.strftime("<-- %d/%m/%Y %H:%M:%S"), data), end = '')
+
                     if ':' in data:
                         redis_db.set('c{}'.format((int(time.time()))), data)
                     if net_connect == 1:
@@ -102,14 +103,14 @@ def main(argv):
 
 #                    Geolocate
                     if geolocate == 1:
-                        if 'L' in  line_split[0] and gateway not in line_split[0]:
-                            packet_split = line_split[0].split('[')
+                        if 'L' in  data and gateway not in data:
+                            packet_split = data.split('[')
                             packet_source = packet_split[1].split(',')[0]
                             if packet_source[-1] == ']':
                                 #print('Stripping end')
                                 packet_source = packet_source.rstrip(']')
                             packet_parts = []
-                            packet_parts = re.findall('[A-Z][^A-Z]*', line_split[0])
+                            packet_parts = re.findall('[A-Z][^A-Z]*', data)
                             for parts in packet_parts:
                                 if parts[0] == 'L':
                                     location_split = parts[1:].split(',')
@@ -118,17 +119,17 @@ def main(argv):
 
                                     #print('Saving to Geolocate DB {}\n {}'.format(packet_source, parts[1:]))
                                     #print('{} {} {} {}'.format(packet_source, location_lon, location_lat, int(time.time())))
-                                    redis_db.geoadd('geo-{}'.format(packet_source), location_lon, location_lat, str(int(time.time())))
+                                    redis_db.geoadd('geo-{}'.format(packet_source), location_lon, location_lat, int(time.time()))
                                     redis_db.geoadd('geo-current', location_lon, location_lat, packet_source )
 
 #                    Repeater Code
                     if repeater == 1:
-                        if gateway in line_split[0]:
+                        if gateway in data:
                             print('Not repeating again')
                         else:
     #                       reduce hoops
-                            hoops = int(line_split[0][0])
-                            add_ending = '{}{},{}]'.format(hoops -1, line_split[0][1:-1], gateway)
+                            hoops = int(data[0])
+                            add_ending = '{}{},{}]'.format(hoops -1, data[1:-1], gateway)
                             print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
                             ser.write(add_ending.encode('utf-8'))
 

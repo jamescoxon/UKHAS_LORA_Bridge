@@ -104,8 +104,8 @@ def main(argv):
 
 #                    Geolocate
                     if geolocate == 1:
-                        if 'L' in  data and gateway not in data:
-                            packet_split = data.split('[')
+                        packet_split = data.split('[')
+                        if 'L' in  packet_split[0] and gateway not in data:
                             packet_source = packet_split[1].split(',')[0]
                             if packet_source[-1] == ']':
                                 #print('Stripping end')

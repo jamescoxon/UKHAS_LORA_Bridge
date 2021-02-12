@@ -2,7 +2,7 @@
 
 This allows a bridge between a local 869.5Mhz UKHASnet network and a LoRa UKHASnet link (used to link local networks together. Currently being used to link 2 UKHASnet networks over a distance of 5.8km. 
 
-There are 2 components, a python script that manages the LoRa bridge and a modified UKHASnet SDR decoder.
+There are multiple components all linked by a redis database, different components include  a python script that manages the LoRa bridge and a modified UKHASnet SDR decoder.
 
 ## Running
 Example: `python3 lora.py -c -p 10 -i AB1 -r`
@@ -12,7 +12,7 @@ Example: `python3 lora.py -c -p 10 -i AB1 -r`
 * -i = this is the gateway idenfier.
 * -b = turns off broadcasting of packets via the LoRa radio, default is on.
 * -r = turns on repeating rx'd packets, default is off
-* -m = allows you to change the mode, default is 4, see below for more options.
+* -m = allows you to change the mode, default is (now) 5, see below for more options.
 
 ## Modes
 * 1 Bw125Cr45Sf128   Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range.
@@ -42,15 +42,11 @@ git submodule update
 cd UKHASnet-decoder/hiredis/
 make
 sudo make install 
-ldconfig
+sudo ldconfig
 cd ..
 make
 cd ..
 pip3 install pyserial requests redis
-```
-On dietpi you will need to reboot.
-```
-python3 lora.py -c -p 10 -i AB2
 ```
 
 ## Installation as a systemd service

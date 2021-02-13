@@ -105,7 +105,7 @@ def main(argv):
 #                    Geolocate
                     if geolocate == 1:
                         packet_split = data.split('[')
-                        if 'L' in  packet_split[0] and gateway not in data:
+                        if 'L' in  packet_split[0] and gateway not in data and '0.0000' not in data:
                             packet_source = packet_split[1].split(',')[0]
                             if packet_source[-1] == ']':
                                 #print('Stripping end')
@@ -132,7 +132,7 @@ def main(argv):
                             hops = int(data[0])
                             if hops > 0:
                                 add_ending = '{}{},{}]'.format(hops -1, data[1:-1], gateway)
-                                time.sleep(random.random() * 5.0)
+                                time.sleep(random.random() * 3.0)
                                 print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
                                 ser.write(add_ending.encode('utf-8'))
 

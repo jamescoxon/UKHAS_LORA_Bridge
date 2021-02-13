@@ -22,8 +22,8 @@ redisReply *reply;
     #include <fcntl.h>
 #endif
 
-char gateway_id[6] = "CHANGE";
-#define BUFSIZE 5
+char gateway_id[7] = "CHANGE";
+#define BUFSIZE 7
 bool new_id = false;
 
 // Size of the character buffer to use for curl requests

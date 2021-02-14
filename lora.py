@@ -15,19 +15,23 @@ def main(argv):
     global broadcast
     global repeater
     global geolocate
+    global duty_cycle
 
     try:
-        opts, args = getopt.getopt(argv, "i:p:m:bcrg")
+        opts, args = getopt.getopt(argv, "i:p:m:d:bcrg")
     except:
         print('Error')
 
     ser = serial.Serial('/dev/ttyACM0', 9600, timeout=2)
     print(ser.name)
     gateway = 'CHANGEME'
+    duty_cycle = 10
+    num_packets_per_min = 60 / int(duty_cycle)
     net_connect = 0
     broadcast = 0
     repeater = 0
     geolocate = 0
+
     for opt, arg in opts:
         if opt in ['-i']:
             gateway = arg
@@ -43,6 +47,10 @@ def main(argv):
             ser.write('\n'.encode('utf-8'))
             time.sleep(2)
             ser.write(set_mode.encode('utf-8'))
+
+        elif opt in ['-d']:
+            duty_cycle = arg
+            num_packets_per_min = 60 / int(duty_cycle)
 
         elif opt in ['-c']:
             net_connect = 1
@@ -64,6 +72,8 @@ def main(argv):
 
     old_line = ""
     old_data = ""
+
+    duty_cycle_store = []
 
     while True:
         try:
@@ -134,7 +144,16 @@ def main(argv):
                                 add_ending = '{}{},{}]'.format(hops -1, data[1:-1], gateway)
                                 time.sleep(random.random() * 3.0)
                                 print("{} {}".format(time.strftime("<R> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
-                                ser.write(add_ending.encode('utf-8'))
+                                if len(duty_cycle_store) < num_packets_per_min or (time.time() - 60.0) > duty_cycle_store[0]:
+                                    # check if duty_cycle_store has more than or equal to num_packets_per_min, if it does then remove the first entry
+                                    if len(duty_cycle_store) >= num_packets_per_min:
+                                        duty_cycle_store.pop(0)
+                                    # add time to store
+                                    duty_cycle_store.append(time.time())
+
+                                    ser.write(add_ending.encode('utf-8'))
+                                else:
+                                    print('Duty Cycle Hit')
 
                 else:
                     print('')
@@ -148,18 +167,28 @@ def main(argv):
         jobs = redis_db.keys('*')
         if len(jobs) > 0:
             jobs.sort()
-            if 'c' not in jobs[0] and 'geo' not in jobs[0]: 
+            if 'c' not in jobs[0] and 'geo' not in jobs[0]:
                 latest = redis_db.get(jobs[0])
-                redis_db.delete(jobs[0])
-                if "]" in latest and latest[0] != "[" and latest != old_line:
-                    old_line = latest
-                    tx_data = latest[1:].split("[")
-                    if tx_data[0] != old_data:
-                        if broadcast == 0:
-                            add_ending = '{},{}]'.format(latest[:-1], gateway)
-                            print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
-                            ser.write(add_ending.encode('utf-8'))
-                        old_data = tx_data[0]
+                if len(duty_cycle_store) < num_packets_per_min or (time.time() - 60.0) > duty_cycle_store[0]:
+
+                    redis_db.delete(jobs[0])
+                    if "]" in latest and latest[0] != "[" and latest != old_line:
+                        old_line = latest
+                        tx_data = latest[1:].split("[")
+                        if tx_data[0] != old_data:
+                            if broadcast == 0:
+                                add_ending = '{},{}]'.format(latest[:-1], gateway)
+                                print("{} {}".format(time.strftime("--> %d/%m/%Y %H:%M:%S"), add_ending.rstrip()))
+                                ser.write(add_ending.encode('utf-8'))
+                                # check if duty_cycle_store has more than or equal to num_packets_per_min, if it does then remove the first entry
+                                if len(duty_cycle_store) >= num_packets_per_min:
+                                    duty_cycle_store.pop(0)
+                                # add time to store
+                                duty_cycle_store.append(time.time())
+                            old_data = tx_data[0]
+                else:
+                    #print('Duty Cycle Hit {}'.format(duty_cycle_store))
+                    print('Duty Cycle Hit')
 
 if __name__ == "__main__":
     main(sys.argv[1:])

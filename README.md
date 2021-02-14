@@ -27,6 +27,8 @@ If you have the lora.py script running (either as a service or in a seperate scr
 ## Beacon (beacon.py)
 This is a simple script that broadcasts every 60 seconds a short packet. Currently it uses the CPU temperature on the Pi but could be used for anything.
 
+## Duty Cycle
+UKHASnet and the WV LoRa network transmit using licence exempt rules (IR2030), UKHASnet is on 869.500MHz and LoRa on 434.400MHz. On 434.400MHz there is a 10% duty cycle which we have calculated as 6 packets per minute (each packet takes roughly 1 second to transmit). The bridge code now keeps track of how many packets are sent in a minute and will delay further transmission if has reached 6 in the last minute. This means that bridged sensor packets may well be discharded (as they are only stored for 120 seconds) but chat messages will be retained and broadcast at the next available slot.
 ## Future
 
 * make the system more robust

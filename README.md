@@ -2,7 +2,7 @@
 
 This allows a bridge between a local 869.5Mhz UKHASnet network and a LoRa UKHASnet link (used to link local networks together. Currently being used to link 3 UKHASnet networks over a distance of 12km. 
 
-There are multiple components all linked by a redis database, different components include  a python script that manages the LoRa bridge and a modified UKHASnet SDR decoder. The redis database acts as a queue system for example packets from the UKHASnet side will expire after 120 seconds if not broadcast for example if there is a duty cycle limit, chat and beacon packets are prioritised.
+There are multiple components all linked by a redis database, different components include  a python script that manages the LoRa bridge and a modified UKHASnet SDR decoder. The redis database acts as a queue system for example packets from the UKHASnet side will expire after 120 seconds if not broadcast if there is a duty cycle limit, chat and beacon packets are prioritised.
 
 ## Running
 Example: `python3 lora.py -c -p 10 -i AB1 -r`
@@ -39,7 +39,7 @@ UKHASnet and the WV LoRa network transmit using licence exempt rules (IR2030), U
 
 ```
 sudo apt install git python3-pip make gcc g++ libcurl4-openssl-dev screen redis git python3-setuptools
-git clone https://wvsensornet.xyz/git/jamescoxon/UKHAS_LORA_Bridge.git
+git clone https://github.com/jamescoxon/UKHAS_LORA_Bridge.git
 cd UKHAS_LORA_Bridge
 git submodule init
 git submodule update

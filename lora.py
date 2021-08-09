@@ -18,7 +18,7 @@ def main(argv):
     global duty_cycle
 
     try:
-        opts, args = getopt.getopt(argv, "i:p:m:d:bcrg")
+        opts, args = getopt.getopt(argv, "i:p:m:d:z:f:bcrgy")
     except:
         print('Error')
 
@@ -31,15 +31,33 @@ def main(argv):
     broadcast = 0
     repeater = 0
     geolocate = 0
+    print_all = 0
 
+    print(opts)
     for opt, arg in opts:
         if opt in ['-i']:
             gateway = arg
+
         elif opt in ['-p']:
             power = arg
             print('Set up radio module')
             set_power = '$P{}\n'.format(power)
+            time.sleep(2)
             ser.write(set_power.encode('utf-8'))
+
+        elif opt in ['-f']:
+            freq = arg
+            print('Set up radio module freq')
+            set_freq = '$F{}\n'.format(freq)
+            time.sleep(2)
+            ser.write(set_freq.encode('utf-8'))
+
+        elif opt in ['-z']:
+            custom = arg
+            print('Set up custom config  radio module')
+            set_custom = '$C{}\n'.format(custom)
+            time.sleep(2)
+            ser.write(set_custom.encode('utf-8'))
 
         elif opt in ['-m']:
             mode = arg
@@ -57,6 +75,9 @@ def main(argv):
 
         elif opt in ['-r']:
             repeater = 1
+
+        elif opt in ['-y']:
+            print_all = 1
 
         elif opt in ['-b']:
             broadcast = 1
@@ -85,6 +106,8 @@ def main(argv):
             line = None
 
         if line:
+            if print_all == 1:
+                print(line)
 
             if line[0] != '>':
 

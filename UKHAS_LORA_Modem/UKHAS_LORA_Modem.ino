@@ -27,7 +27,7 @@
 #include <RadioLib.h>
 #include <string.h>
 
-#define VERSION 17
+#define VERSION 18
 
 // Singleton instance of the radio driver
 #define NSS 8
@@ -38,6 +38,8 @@ SX1278 radio = new Module(NSS, DIO0, RESET, DIO1);
 
 String a;
 uint8_t n, i, j, k, packet_len;
+uint8_t last_packet[255];
+char temp[16];
 
 //****CONFIG******
 char id[] = "LORA01";
@@ -255,8 +257,11 @@ void loop()
       }
        else if (a.charAt(0) == 'D') {
         Serial.println("> Debug");
-        //rf95.printRegisters();
-        //Serial.print('Bad Packets: '); Serial.println(rf95.RHGenericDriver::rxBad());
+      for (int i = 0; i < 255; i++) {
+        sprintf(temp, "%.2X",last_packet[i]);
+        Serial.print(temp); Serial.print(" ");
+      }
+      Serial.println(); 
        }
        
        else if (a.charAt(0) == 'R') {
@@ -412,12 +417,15 @@ void loop()
     else {
       uint8_t data_array[255];
       state = radio.readData(data_array, 255);
+      memcpy(last_packet, data_array, 255);
+      
+      
       for (int i = 0; i < 255; i++) {
-        Serial.print("0x"); Serial.print(data_array[i], HEX); Serial.print(" ");
-        if (i % 15 == 0){
-          Serial.println(); 
-        }
+        sprintf(temp, "%.2X",data_array[i]);
+        Serial.print(temp); Serial.print(" ");
       }
+      Serial.println(); 
+      
     }
 
     if (state == ERR_NONE) {

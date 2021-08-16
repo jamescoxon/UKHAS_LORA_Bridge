@@ -4,11 +4,16 @@ import time
 import sys, getopt
 import re
 import random
+import settings
 
 import redis
 from redis import Redis
 
+from norby import *
+from skyfield.api import load, wgs84
+
 redis_db = redis.Redis(host='localhost', charset="utf-8", decode_responses=True)
+location = wgs84.latlon(settings.lat, settings.lon)
 
 def main(argv):
     global net_connect
@@ -18,7 +23,7 @@ def main(argv):
     global duty_cycle
 
     try:
-        opts, args = getopt.getopt(argv, "i:p:m:d:z:f:bcrgyk:s:")
+        opts, args = getopt.getopt(argv, "i:p:m:d:z:f:k:s:bcrgyn")
     except:
         print('Error')
 
@@ -32,11 +37,23 @@ def main(argv):
     repeater = 0
     geolocate = 0
     print_all = 0
+    norbi_visible = 0
+    track_norbi = 0
 
     print(opts)
     for opt, arg in opts:
         if opt in ['-i']:
             gateway = arg
+
+        elif opt in ['-n']:
+            print('Setting up Norbi Sat')
+            stations_url = 'http://tle.pe0sat.nl/kepler/mykepler.txt'
+            satellites = load.tle_file(stations_url)
+            by_name = {sat.name: sat for sat in satellites}
+            satellite = by_name['NORBI']
+            print(satellite)
+            ts = load.timescale()
+            track_norbi = 1
 
         elif opt in ['-p']:
             power = arg
@@ -103,6 +120,7 @@ def main(argv):
             repeater = 1
 
         elif opt in ['-y']:
+            print('print all')
             print_all = 1
 
         elif opt in ['-b']:
@@ -123,6 +141,59 @@ def main(argv):
     duty_cycle_store = []
 
     while True:
+        if track_norbi == 1:
+            difference = satellite - location
+
+            t = ts.now()
+
+            topocentric = difference.at(t)
+#            print(topocentric.position.km)
+
+            alt, az, distance = topocentric.altaz()
+
+            if alt.degrees > 0:
+                if norbi_visible == 0:
+                    print('Norbi is above the horizon')
+                    print('Start listening')
+                    norbi_visible = 1
+
+                    print('Set up radio module freq')
+                    set_freq = '$F{}\n'.format(436.7)
+                    time.sleep(2)
+                    ser.write(set_freq.encode('utf-8'))
+                    line = ser.readline().decode('utf-8').strip()
+                    print(line)
+
+                    set_mode = '$M{}\n'.format(6)
+                    time.sleep(2)
+                    ser.write(set_mode.encode('utf-8'))
+                    line = ser.readline().decode('utf-8').strip()
+                    print(line)
+
+            else:
+                if norbi_visible == 1:
+                    print('Stop listening')
+
+                    print('Set up radio module freq')
+                    set_freq = '$F{}\n'.format(434.4)
+                    time.sleep(2)
+                    ser.write(set_freq.encode('utf-8'))
+                    line = ser.readline().decode('utf-8').strip()
+                    print(line)
+
+                    set_mode = '$M{}\n'.format(5)
+                    time.sleep(2)
+                    ser.write(set_mode.encode('utf-8'))
+                    line = ser.readline().decode('utf-8').strip()
+                    print(line)
+
+                norbi_visible = 0
+
+
+#            print('Altitude:', alt)
+#            print('Azimuth:', az)
+#            print('Distance: {:.1f} km'.format(distance.km))
+
         try:
             line = ser.readline().decode('utf-8').strip()
 #            ser.reset_input_buffer()
@@ -203,6 +274,22 @@ def main(argv):
                                     ser.write(add_ending.encode('utf-8'))
                                 else:
                                     print('Duty Cycle Hit')
+
+
+                elif line[2] == ' ':
+                    print('Found Hex String from Norby Sat')
+                    removed_rssi = line.split('|')
+
+                    final_data = removed_rssi[0].replace(" ", "")
+                    print(final_data)
+
+                    bytearray_ = bytearray.fromhex(final_data)
+
+                    try:
+                        target = Norby.from_bytes(bytearray_)
+                        print(target.payload.sop_altitude_glonass)
+                    except:
+                       print('Not Norby')
 
                 else:
                     print('')

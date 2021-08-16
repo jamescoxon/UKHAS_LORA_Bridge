@@ -27,7 +27,7 @@
 #include <RadioLib.h>
 #include <string.h>
 
-#define VERSION 18
+#define VERSION 19
 
 // Singleton instance of the radio driver
 #define NSS 8
@@ -252,7 +252,19 @@ void loop()
             radio.setBandwidth(125.0);
             radio.setSpreadingFactor(11);
             radio.setCodingRate(5);
-            Serial.println("> Mode Set");
+            output_string = true;
+            radio.forceLDRO(true);  
+            Serial.println("> Mode Set - 125.0,11,5,str_output:true,LDRO:true");
+        }
+        else if (a.charAt(0) == '6')
+        {
+            //rf95.setModemConfig(RH_RF95::Bw125Cr45Sf2048); 
+            radio.setBandwidth(250.0);
+            radio.setSpreadingFactor(10);
+            radio.setCodingRate(5);
+            output_string = false;
+            radio.forceLDRO(true);  
+            Serial.println("> Mode Set (Norbi) - 250.0,10,5,str_output:false,LDRO:true");
         }
       }
        else if (a.charAt(0) == 'D') {
@@ -332,7 +344,7 @@ void loop()
         Serial.println(VERSION);
        }
        
-      else if (a.charAt(0) == 'S'){
+      else if (a.charAt(0) == 'A'){
         Serial.println("> Changing State");
         a.remove(0,1);
         if (a.charAt(0) == 'R'){
@@ -350,6 +362,12 @@ void loop()
       }
 
       a = "";
+     // put module back to listen mode
+    radio.startReceive();
+
+    // we're ready to receive more packets,
+    // enable interrupt service routine
+    enableInterrupt = true;
     }
   }
 
@@ -419,7 +437,7 @@ void loop()
       state = radio.readData(data_array, 255);
       memcpy(last_packet, data_array, 255);
       
-      
+      //Serial.print('Binary String Found:');
       for (int i = 0; i < 255; i++) {
         sprintf(temp, "%.2X",data_array[i]);
         Serial.print(temp); Serial.print(" ");

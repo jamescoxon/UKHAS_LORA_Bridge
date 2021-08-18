@@ -287,9 +287,24 @@ def main(argv):
 
                     try:
                         target = Norby.from_bytes(bytearray_)
-                        print(target.payload.sop_altitude_glonass)
+                        norby_ukhas_string = '4aT{}V{}X{},{}[NORBY]'.format(target.payload.brk_temp_active, target.payload.ses_voltage, target.payload.frame_number, target.payload.brk_transmitter_power_active)
+                        print(norby_ukhas_string)
+                        redis_db.set((int(time.time()) - 1000), norby_ukhas_string)
+                        print('Loaded into the broadcast queue')
                     except:
                        print('Not Norby')
+
+                    if net_connect == 1:
+                        data = norby_ukhas_string
+                        rx_rssi = 0
+                        print('{} {}'.format(data, rx_rssi))
+                        try:
+                            r = requests.post('http://www.ukhas.net/api/upload', json = {'origin': gateway, 'data' : data, 'rssi' : rx_rssi})
+                            print("Uploaded")
+                        except:
+                            print('Error no internet connection')
+                    else:
+                        print('Not Uploaded')
 
                 else:
                     print('')

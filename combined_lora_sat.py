@@ -284,6 +284,7 @@ def main(argv):
                     print(final_data)
 
                     bytearray_ = bytearray.fromhex(final_data)
+                    norby_ukhas_string = '0'
 
                     try:
                         target = Norby.from_bytes(bytearray_)
@@ -294,7 +295,7 @@ def main(argv):
                     except:
                        print('Not Norby')
 
-                    if net_connect == 1:
+                    if net_connect == 1 and norby_ukhas_string != '0':
                         data = norby_ukhas_string
                         rx_rssi = 0
                         print('{} {}'.format(data, rx_rssi))
